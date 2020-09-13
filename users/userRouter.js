@@ -4,6 +4,7 @@ const userDB = require('./userDb');
 
 const userDb = require('./userDb');
 const { restart } = require('nodemon');
+const { json } = require('express');
 
 const router = express.Router();
 
@@ -43,11 +44,13 @@ router.get('/', (req, res) => {
 
 router.get('/:id', validateUserId, (req, res) => {
   // do your magic!
+  res.status(200).json(data)
+  
 }); // Need help!
 
 router.get('/:id/posts', validateUserId, (req, res) => {
   // do your magic!
-  const {id} = req.params.id
+  const {id} = req.params
   userDB.getById(id)
   .then(message => {
     res.json(message.posts)
@@ -63,22 +66,30 @@ router.delete('/:id', validateUserId, (req, res) => {
   const {id} = req.params
   userDB.remove(id)
   .then(message => {
-    res.status(200).json({message: "the user is gowwwn"})
+    res.json(req.body)
+    res.status(200).json({message: "The user has been nuked!"})
   })
   .catch(error => {
     res.status(500).json({message: "Could not remove the user"})
   })
-});
+}); // Checked!
 
 router.put('/:id', validateUserId, (req, res) => {
   // do your magic!
   const {id} = req.params
   const changes = req.body
+
+  if(!changes.name){
+    res.status(404).json({message: "Please provide a name to update!"})
+  }else{
   userDB.update(id, changes)
-  .then(message => {
-    res.status(200).json({message: "The info has been updated"})
+  .then(data => {
+    res.status(200).json(changes)
   })
-});
+  .catch(error => {
+    res.status(500).json({message: "There was a problem retrieving your information"})
+  })}
+}); // Checked!
 
 //custom middleware
 
@@ -87,15 +98,14 @@ function validateUserId(req, res, next) {
   const { id } = req.params
   userDB.getById(id)
   .then(data => {
-    console.log(data)
-    res.status(200).json(data)
+    req.user = data
     next();
   })
   .catch(error => {
     res.status(400).json({message: "invalid user id"})
   })
 
-}
+} // Checked!
 
 function validateUser(req, res, next) {
   // do your magic!
