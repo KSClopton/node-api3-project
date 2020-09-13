@@ -3,6 +3,7 @@ const express = require('express');
 
 // const Hubs = require('./hubs/hubs-model.js');
 const userRouter = require('./users/userRouter');
+const { proppatch } = require('./users/userRouter');
 
 const server = express();
 
@@ -17,6 +18,7 @@ function logger(req, res, next) {
     next();
   }
 
-server.listen(5000, () => {
-  console.log('\n*** Server Running on http://localhost:5000 ***\n');
+const port = process.env.PORT || 5000;
+server.listen(port, () => {
+  console.log(`\n*** Server Running on http://localhost:${port} ***\n`);
 });
